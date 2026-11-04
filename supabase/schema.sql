@@ -1,4 +1,4 @@
--- To Go List — database setup for Supabase
+-- Wishlylist — database setup for Supabase
 -- Paste this whole file into Supabase → SQL Editor → New query → Run.
 -- Safe to run once on a new project.
 

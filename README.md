@@ -1,4 +1,4 @@
-# To Go List
+# Wishlylist
 
 Places to go, things to buy, services, movies and books — in private, family, friends and public lists.
 Sign-in and data: Supabase. Hosting: Vercel. No Claude account needed to use it.
@@ -10,17 +10,17 @@ Sign-in and data: Supabase. Hosting: Vercel. No Claude account needed to use it.
 
 ## One-time setup
 1. **Supabase → SQL Editor → New query**: paste all of `supabase/schema.sql` and click **Run**.
-2. **Supabase → Authentication → URL Configuration**: set **Site URL** to your Vercel address (e.g. `https://your-app.vercel.app`) and add the same address under **Redirect URLs**.
+2. **Supabase → Authentication → URL Configuration**: set **Site URL** to your Vercel address (e.g. `https://wishlylist.vercel.app`) and add the same address under **Redirect URLs**.
 3. **Vercel → Add New → Project**: import this GitHub repository. Under **Environment Variables** add:
    - `SUPABASE_URL` — Supabase → Project Settings → API → Project URL
    - `SUPABASE_ANON_KEY` — Supabase → Project Settings → API → `anon` `public` key
-   - `APP_NAME` — the name shown in the app (optional)
+   - `APP_NAME` — `Wishlylist` (optional; that is already the default)
 4. Click **Deploy**.
 
 Never put the `service_role` key anywhere in this project.
 
 ## Importing the old Claude list
-Signed in, open `https://your-app.vercel.app/#/import`, choose `to-go-list-old-items.json`, pick a list and click **Import**. Running it twice doesn't create duplicates.
+Signed in, open `https://wishlylist.vercel.app/#/import`, choose `to-go-list-old-items.json`, pick a list and click **Import**. Running it twice doesn't create duplicates.
 
 ## Files
 - `src/` — the site (plain HTML/CSS/JS, no framework)

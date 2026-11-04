@@ -1,6 +1,6 @@
-/* To Go List — standalone app (Supabase for login + data, static hosting on Vercel) */
+/* Wishlylist — standalone app (Supabase for login + data, static hosting on Vercel) */
 const CFG = window.TGL_CONFIG || {};
-const APP_NAME = CFG.appName || "To Go List";
+const APP_NAME = CFG.appName || "Wishlylist";
 const BUCKET = "item-images";
 
 /* ───────────── Text ───────────── */
@@ -114,6 +114,13 @@ const safeUrl = u => /^https?:\/\//i.test(u || "") ? u : "";
 const photoUrl = path => path ? sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl : "";
 const coverOf = p => photoUrl(p.image_path) || safeUrl(p.image_url);
 const origin = () => location.origin + location.pathname.replace(/index\.html$/, "");
+/* "Wishlylist" → Wishly + accented "list"; multi-word names accent the last word */
+function brandHtml() {
+  const n = APP_NAME, w = n.split(" ");
+  if (w.length > 1) return `${esc(w.slice(0, -1).join(" "))} <span>${esc(w[w.length - 1])}</span>`;
+  const m = n.match(/^(.+?)(list)$/i);
+  return m ? `${esc(m[1])}<span>${esc(m[2])}</span>` : esc(n);
+}
 const listUrl = id => `${origin()}#/l/${id}`;
 
 function toast(m) { const t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(t._h); t._h = setTimeout(() => t.hidden = true, 2600); }
@@ -206,7 +213,7 @@ async function showAuth({ invite }) {
   const draw = () => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     showScreen(`<div class="auth">${langToggle()}
-      <h1>${esc(APP_NAME.split(" ").slice(0,-1).join(" ") || APP_NAME)} <span>${esc(APP_NAME.split(" ").length > 1 ? APP_NAME.split(" ").slice(-1)[0] : "")}</span></h1>
+      <h1>${brandHtml()}</h1>
       <div class="tagline">${tx("tagline")}</div>
       ${invite ? `<div class="invitecard">${inviteInfo && inviteInfo.valid ? tx("inviteTo")(esc(inviteInfo.list_name), esc(inviteInfo.owner_name)) : tx("badInvite")}</div>` : ""}
       <div class="seg"><button data-m="in" aria-pressed="${mode==="in"}">${tx("signIn")}</button><button data-m="up" aria-pressed="${mode==="up"}">${tx("signUp")}</button></div>
