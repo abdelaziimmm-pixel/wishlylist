@@ -1,0 +1,50 @@
+/* Additions for the standalone site: list switcher, auth screen, forms, list settings */
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;padding:0;min-height:100vh}
+.top{align-items:flex-start}
+.listbtn{border:0;background:none;color:inherit;padding:0;cursor:pointer;text-align:start;min-width:0;flex:1;font:inherit;display:flex;flex-direction:column;gap:2px}
+.lname{display:flex;align-items:center;gap:8px;min-width:0}
+.lname h1{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lname .chev{font-size:18px}
+.lkind{font-size:12px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:6px}
+.iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);width:38px;height:38px;border-radius:12px;font-size:18px;cursor:pointer;flex:none}
+.lang{margin-inline-start:0}
+.banner{margin-top:10px;background:var(--inbox);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner .btn{padding:6px 12px;font-size:13px}
+/* auth */
+.auth{max-width:420px;margin:8vh auto 0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px}
+.auth h1{font-size:34px}
+.auth .tagline{color:var(--muted);margin:6px 0 18px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--chip);border-radius:12px;padding:4px;margin-bottom:16px}
+.seg button{border:0;background:none;color:var(--muted);font:600 14px var(--body);padding:8px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.field label{font-size:13px;font-weight:600;color:var(--muted)}
+.field input,.field select{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:10px 12px;font:inherit;width:100%}
+.field input:focus-visible,.field select:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+@media (max-width:420px){.grid2{grid-template-columns:1fr}}
+.full{width:100%;justify-content:center;display:flex}
+.err{color:var(--accent);font-size:13px;margin-top:10px}
+.ok{color:var(--good);font-size:13px;margin-top:10px}
+.invitecard{background:var(--inbox);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px;font-size:14px}
+/* list picker */
+.lgroup{margin-top:14px}
+.litem{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 12px;font:inherit;cursor:pointer;text-align:start;margin-top:6px}
+.litem[aria-current="true"]{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+.litem .ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:16px;flex:none;background:var(--chip)}
+.litem .nm{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.litem .sm{font-size:12px;color:var(--muted)}
+.kindpick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.kindpick button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px;text-align:start;font:inherit;cursor:pointer}
+.kindpick button[aria-pressed="true"]{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+.kindpick b{display:block;font-size:14px}
+.kindpick span{font-size:12px;color:var(--muted)}
+.member{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.member .av{width:30px;height:30px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-weight:700;flex:none}
+.member .nm{flex:1;min-width:0}
+.linkbox{display:flex;gap:6px;margin-top:8px}
+.linkbox input{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 10px;font:13px var(--body)}
+.center{text-align:center;color:var(--muted);margin-top:30vh}
+.sheet h2:first-of-type{margin-top:4px}

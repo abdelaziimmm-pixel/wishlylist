@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>To Go List</title>
+<meta name="theme-color" content="#EEF2F4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23E8553A'/%3E%3Cpath d='M18 33l9 9 19-20' stroke='white' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="wrap" id="app">
+  <header id="hdr" hidden>
+    <div class="top">
+      <button class="listbtn" id="listBtn" aria-haspopup="dialog">
+        <span class="lkind" id="lKind"></span>
+        <span class="lname"><h1 id="t-title"></h1><span class="chev">▾</span></span>
+        <span class="stat" id="stat"></span>
+      </button>
+      <div class="lang" role="group" aria-label="Language">
+        <button id="l-en" aria-pressed="true">EN</button>
+        <button id="l-ar" aria-pressed="false">عربي</button>
+      </div>
+      <button class="iconbtn" id="menuBtn" aria-label="Menu">☰</button>
+    </div>
+    <div class="banner" id="banner" hidden></div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <input id="q" class="search" type="search" placeholder="Search">
+    <div class="chips" id="types"></div>
+    <div class="chips" id="status"></div>
+  </header>
+  <main id="groups"></main>
+  <div id="screen"></div>
+</div>
+<button class="fab" id="fab" hidden>＋ Add</button>
+<div id="sheetHost"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="kinds.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
