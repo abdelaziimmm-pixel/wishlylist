@@ -6,7 +6,8 @@ fs.mkdirSync(out);
 for (const f of fs.readdirSync(path.join(__dirname, "src"))) fs.copyFileSync(path.join(__dirname, "src", f), path.join(out, f));
 const cfg = {
   appName: process.env.APP_NAME || "Wishlylist",
-  supabaseUrl: (process.env.SUPABASE_URL || "").trim(),
+  // keep only https://xxxx.supabase.co even if a longer address (e.g. .../rest/v1/) was pasted
+  supabaseUrl: (() => { const u = (process.env.SUPABASE_URL || "").trim(); try { return new URL(u).origin; } catch (e) { return u; } })(),
   supabaseAnonKey: (process.env.SUPABASE_ANON_KEY || "").trim()
 };
 fs.writeFileSync(path.join(out, "config.js"), "window.TGL_CONFIG = " + JSON.stringify(cfg) + ";\n");
