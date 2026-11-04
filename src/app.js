@@ -45,6 +45,14 @@ const T = {
     providerL:"Provider",yearL:"Year",genreL:"Genre",directorL:"Director",watchL:"Where to watch",authorL:"Author",pagesL:"Pages",
     photoL:"Photo",pickPhoto:"Tap to choose a photo",statusL:"Status",none:"—",needName:"Please enter a name.",
     importT:"Import your old list",importB:"Copies the items from your previous Claude version into a list you choose. Photos aren't included; add them with “Change photo”.",
+    aiPick:"Fill in from a screenshot",aiHelp:"Choose a screenshot; the details are found and checked online for you to review.",
+    aiFromLink:"Look up the shared link",aiBusy:"Reading and checking online… this takes 20–60 seconds.",aiDone:"Details filled in. Check them, then tap Save.",aiAlso:"Also saved",
+    review:"REVIEW",reading:"READING…",reviewT:"Added from a screenshot. Check the details, then confirm.",readingT:"Still reading the screenshot… details appear here in about a minute.",looksGood:"Looks good ✓",
+    iphone:"iPhone sharing",iphoneT:"Share screenshots from iPhone",iphoneB:"Set this up once. Then take a screenshot, tap Share → Wishlylist, and it's added to your list with the details filled in, marked REVIEW.",
+    shareTo:"Shared screenshots go to",yourKey:"Your private share key",keyNote:"Treat it like a password: anyone with this key can add items to your lists.",newKey:"Make a new key",
+    off:"iPhone sharing isn't switched on yet. It needs the SUPABASE_SERVICE_ROLE_KEY and ANTHROPIC_API_KEY settings in Vercel.",
+    steps:["Open the Shortcuts app → tap ＋ → name it <b>Wishlylist</b>.","Tap ⓘ at the bottom → turn on <b>Show in Share Sheet</b>. At the top, set it to receive <b>Images</b> only.","Add action <b>Resize Image</b> → Width <b>1200</b>.","Add action <b>Convert Image</b> → <b>JPEG</b>.","Add action <b>Get Contents of URL</b> → paste the address below. Tap ▸ Show More: Method <b>POST</b>, Request Body <b>Form</b>. Add a <b>Text</b> field named <b>key</b> with your key, and a <b>File</b> field named <b>image</b> set to <b>Converted Image</b>.","Add action <b>Show Notification</b> → <b>Contents of URL</b>. Tap Done."],
+    address:"Address",
     importGo:"Import",importDone:n=>`Imported ${n} items`,importNone:"Everything is already imported."
   },
   ar: {
@@ -84,6 +92,14 @@ const T = {
     providerL:"مقدم الخدمة",yearL:"السنة",genreL:"النوع",directorL:"المخرج",watchL:"تتفرج عليه فين",authorL:"المؤلف",pagesL:"عدد الصفحات",
     photoL:"الصورة",pickPhoto:"اضغط لاختيار صورة",statusL:"الحالة",none:"—",needName:"اكتب الاسم.",
     importT:"استورد قائمتك القديمة",importB:"بينسخ الحاجات من نسخة Claude القديمة لقائمة تختارها. الصور مش بتتنقل؛ ضيفها من «تغيير الصورة».",
+    aiPick:"املأ البيانات من سكرين شوت",aiHelp:"اختار سكرين شوت، وهيتم البحث عن التفاصيل والتأكد منها أونلاين علشان تراجعها.",
+    aiFromLink:"دوّر على اللينك اللي اتبعت",aiBusy:"جاري القراءة والتأكد أونلاين… بياخد من 20 لـ 60 ثانية.",aiDone:"التفاصيل اتملت. راجعها واضغط حفظ.",aiAlso:"هيتحفظ كمان",
+    review:"راجعه",reading:"جاري القراءة…",reviewT:"اتضاف من سكرين شوت. راجع التفاصيل وبعدين أكّد.",readingT:"لسه بنقرا السكرين شوت… التفاصيل هتظهر هنا خلال دقيقة تقريبًا.",looksGood:"تمام ✓",
+    iphone:"المشاركة من الآيفون",iphoneT:"شارك سكرين شوت من الآيفون",iphoneB:"اعمل الخطوات دي مرة واحدة. بعدها خد سكرين شوت، اضغط مشاركة ← Wishlylist، وهيتضاف لقائمتك بالتفاصيل ومتعلّم «راجعه».",
+    shareTo:"السكرين شوت هيروح لـ",yourKey:"مفتاح المشاركة الخاص بيك",keyNote:"خليه زي الباسورد: أي حد معاه المفتاح ده يقدر يضيف حاجات لقوايمك.",newKey:"اعمل مفتاح جديد",
+    off:"المشاركة من الآيفون لسه مش متفعلة. محتاجة إعدادات SUPABASE_SERVICE_ROLE_KEY و ANTHROPIC_API_KEY في Vercel.",
+    steps:["افتح تطبيق Shortcuts ← اضغط ＋ ← سمّيه <b>Wishlylist</b>.","اضغط ⓘ تحت ← فعّل <b>Show in Share Sheet</b>. فوق، خليه يستقبل <b>Images</b> بس.","ضيف أكشن <b>Resize Image</b> ← Width <b>1200</b>.","ضيف أكشن <b>Convert Image</b> ← <b>JPEG</b>.","ضيف أكشن <b>Get Contents of URL</b> ← الصق العنوان اللي تحت. اضغط ▸ Show More: Method <b>POST</b>، Request Body <b>Form</b>. ضيف حقل <b>Text</b> اسمه <b>key</b> فيه المفتاح، وحقل <b>File</b> اسمه <b>image</b> قيمته <b>Converted Image</b>.","ضيف أكشن <b>Show Notification</b> ← <b>Contents of URL</b>. اضغط Done."],
+    address:"العنوان",
     importGo:"استيراد",importDone:n=>`تم استيراد ${n} عنصر`,importNone:"كل حاجة متستوردة بالفعل."
   }
 };
@@ -94,7 +110,7 @@ let sb = null, session = null, me = null;
 let myLists = [];            // [{...list, role}]
 let cur = null;              // current list
 let items = [], members = [], names = {}, canEdit = false, isOwner = false;
-let channel = null, recovering = false;
+let channel = null, recovering = false, aiEnabled = false, shortcutEnabled = false;
 try { lang = localStorage.getItem("tgl-lang") || (navigator.language || "").startsWith("ar") && "ar" || "en"; } catch (e) {}
 
 /* ───────────── Helpers ───────────── */
@@ -333,7 +349,12 @@ async function openList(id, k) {
   $("#screen").innerHTML = ""; $("#hdr").hidden = false; $("#fab").hidden = !canEdit;
   lastView = renderMain; renderMain();
   const share = takeShare();
-  if (share && canEdit) openForm(null, share);
+  if (share && canEdit) {
+    if (share.img) { try { const c = await caches.open("wl-share"); const r = await c.match("/shared-image");
+      if (r) { const blob = await r.blob(); share.image = new File([blob], "screenshot.jpg", { type: blob.type || "image/jpeg" }); await c.delete("/shared-image"); } } catch (e) {} }
+    if (share.image && !aiEnabled) await new Promise(r => setTimeout(r, 800));   // give the feature check a moment
+    openForm(null, share);
+  }
 }
 function subscribe() {
   if (channel) { sb.removeChannel(channel); channel = null; }
@@ -421,7 +442,7 @@ function card(p) {
       ${m ? `<span class="meta">${esc(m)}</span>` : ""}
       ${pr ? `<span class="price">${esc(pr)}</span>` : ""}
       ${shared ? `<span class="note">${tx("addedBy")} ${esc(who(p.added_by))}</span>` : ""}</span>
-    ${p.status === "visited" ? `<span class="visited">${KINDS[k].badge[lang]}</span>` : ""}</button>`;
+    ${p.processing ? `<span class="visited rev">${tx("reading")}</span>` : p.review ? `<span class="visited rev">${tx("review")}</span>` : p.status === "visited" ? `<span class="visited">${KINDS[k].badge[lang]}</span>` : ""}</button>`;
 }
 
 /* ───────────── Item detail ───────────── */
@@ -471,6 +492,8 @@ function openSheet(id) {
 
   sheet(`${c ? `<img class="shot${k === "movie" || k === "buy" || k === "book" ? " poster" : ""}" src="${esc(c)}" alt="">` : ""}
     ${canEdit ? `<div class="row" style="margin-top:8px"><label class="linkbtn">${tx("cover")}<input type="file" id="coverIn" accept="image/*" hidden></label></div>` : ""}
+    ${canEdit && (p.review || p.processing) ? `<div class="banner" style="margin-top:12px">${p.processing ? `<span class="spin"></span><span>${tx("readingT")}</span>`
+      : `<span style="flex:1">${tx("reviewT")}</span><button class="btn pri" id="okRev">${tx("looksGood")}</button><button class="btn" id="edRev">${tx("edit")}</button>`}</div>` : ""}
     <h2>${esc(name)}</h2>
     <div class="sub">${sub}</div>
     ${cur.kind !== "private" && p.added_by && names[p.added_by] ? `<div class="note" style="margin-top:4px">${tx("addedBy")} ${esc(who(p.added_by))}</div>` : ""}
@@ -494,6 +517,8 @@ function openSheet(id) {
   $("#saveN").onclick = () => patch(p, { details: { ...p._row.details, notes: $("#notes").value } }, tx("saved"));
   $("#tog").onclick = () => patch(p, { status: p.status === "visited" ? "want" : "visited" });
   $("#edit").onclick = () => openForm(p);
+  const ok = $("#okRev"); if (ok) ok.onclick = () => { const d = { ...p._row.details }; delete d.review; delete d.processing; patch(p, { details: d }); };
+  const er = $("#edRev"); if (er) er.onclick = () => openForm(p);
   let armed = false;
   $("#del").onclick = async e => {
     if (!armed) { armed = true; e.target.textContent = tx("delSure"); return; }
@@ -525,8 +550,15 @@ const FIELDS = {
 };
 function openForm(p, pre) {
   closeSheet();
-  let fk = p ? kindOf(p) : (pre && pre.kind) || kind, photo = null;
-  const val = f => p ? (L(p, f) ?? "") : pre ? (sharedFields(pre, fk)[f] ?? "") : "";
+  let fk = p ? kindOf(p) : (pre && pre.kind) || kind, photo = (pre && pre.image) || null;
+  let ai = null, busy = false, aiErr = "";            // ai = details found from a screenshot, waiting for review
+  const base = () => p || ai;                         // what the form started from
+  const val = f => {
+    if (p) return L(p, f) ?? "";
+    if (ai) return f === "notes" ? [ai.notes, pre && pre.notes].filter(Boolean).join("\n") : (L(ai, f) ?? "");
+    return pre ? (sharedFields(pre, fk)[f] ?? "") : "";
+  };
+  const curType = () => p ? p.type : ai ? ai.type : "";
   const draw = () => {
     const K = KINDS[fk];
     const fieldHtml = ([f, lbl, ty]) => {
@@ -534,32 +566,44 @@ function openForm(p, pre) {
         [...new Set([...COUNTRIES, val(f)].filter(Boolean))].map(c => ({ c, n: cName(c) })).sort((a, b) => a.n.localeCompare(b.n, lang)).map(({ c, n }) => `<option value="${c}" ${val(f) === c ? "selected" : ""}>${flag(c)} ${esc(n)}</option>`).join("")}</select></div>`;
       return `<div class="field"><label for="f_${f}">${tx(lbl)}</label><input id="f_${f}" ${ty === "url" ? 'type="url" dir="ltr" placeholder="https://"' : ty === "tel" ? 'type="tel" dir="ltr"' : ""} value="${esc(val(f))}"></div>`;
     };
+    const aiBox = !p && aiEnabled ? `<div class="blk aibox">
+        ${busy ? `<div class="aibusy"><span class="spin"></span>${tx("aiBusy")}</div>`
+        : ai ? `<div class="ok" style="margin:0">✓ ${tx("aiDone")}</div>`
+        : `<label class="drop ai" for="f_ai"><b>✨ ${tx("aiPick")}</b><span class="note">${tx("aiHelp")}</span><input type="file" id="f_ai" accept="image/*"></label>
+           ${pre && (pre.name || pre.url) ? `<button type="button" class="btn" id="aiText" style="margin-top:8px">✨ ${tx("aiFromLink")}</button>` : ""}`}
+        ${aiErr ? `<div class="err">${esc(aiErr)}</div>` : ""}</div>` : "";
+    const extras = ai ? [ai.prices && ai.prices.length ? `${ai.prices.length} ${tx("prices").toLowerCase()}` : "", (ai.features_en || ai.features_ar) ? tx("features") : "", L(ai, "hours") ? tx("hours") : "", L(ai, "address") ? tx("address") : ""].filter(Boolean) : [];
     sheet(`<h2>${p ? tx("editT") : tx("addT")(K.noun[lang])}</h2>
+      ${aiBox}
       ${p ? "" : `<div class="blk"><div class="lbl">${tx("kindL")}</div><div class="chips" id="fKind" style="flex-wrap:wrap;padding-top:0">${Object.entries(KINDS).map(([k, v]) => `<button class="chip" data-k="${k}" aria-pressed="${k === fk}">${v.noun[lang]}</button>`).join("")}</div></div>`}
       <form id="itemF" novalidate>
         <div class="field"><label for="f_name">${tx("nameL")} *</label><input id="f_name" required value="${esc(val("name"))}"></div>
         <div class="grid2">
-          <div class="field"><label for="f_type">${tx("typeL")}</label><select id="f_type">${Object.entries(K.types).map(([k, v]) => `<option value="${k}" ${(p ? p.type : "") === k ? "selected" : ""}>${esc(v[lang])}</option>`).join("")}</select></div>
+          <div class="field"><label for="f_type">${tx("typeL")}</label><select id="f_type">${Object.entries(K.types).map(([k, v]) => `<option value="${k}" ${curType() === k ? "selected" : ""}>${esc(v[lang])}</option>`).join("")}</select></div>
           <div class="field"><label for="f_status">${tx("statusL")}</label><select id="f_status"><option value="want">${esc(K.want[lang])}</option><option value="visited" ${p && p.status === "visited" ? "selected" : ""}>${esc(K.done[lang])}</option></select></div>
         </div>
         <div class="grid2">${FIELDS[fk].map(fieldHtml).join("")}</div>
         <div class="field"><label for="f_summary">${tx("summaryL")}</label><textarea id="f_summary">${esc(val("summary"))}</textarea></div>
         <div class="field"><label for="f_notes">${tx("notes")}</label><textarea id="f_notes">${esc(p ? p.notes || "" : val("notes"))}</textarea></div>
+        ${extras.length ? `<div class="note">${tx("aiAlso")}: ${esc(extras.join(" · "))}</div>` : ""}
         <div class="blk"><div class="lbl">${tx("photoL")}</div><label class="drop" for="f_photo">${tx("pickPhoto")}<input type="file" id="f_photo" accept="image/*"></label><div class="previews" id="prev">${photo ? `<img src="${URL.createObjectURL(photo)}" alt="">` : p && coverOf(p) ? `<img src="${esc(coverOf(p))}" alt="">` : ""}</div></div>
         <div id="fMsg"></div>
-        <div class="blk row"><button class="btn pri" id="fSave">${tx("save")}</button><button type="button" class="btn" id="cls">${tx("cancel")}</button></div>
+        <div class="blk row"><button class="btn pri" id="fSave" ${busy ? "disabled" : ""}>${tx("save")}</button><button type="button" class="btn" id="cls">${tx("cancel")}</button></div>
       </form>`, tx("editT"));
     $("#cls").onclick = closeSheet;
     if (!p) $("#fKind").querySelectorAll("button").forEach(b => b.onclick = () => { fk = b.dataset.k; draw(); });
     $("#f_photo").onchange = e => { photo = e.target.files[0] || null; $("#prev").innerHTML = photo ? `<img src="${URL.createObjectURL(photo)}" alt="">` : ""; };
+    const fa = $("#f_ai"); if (fa) fa.onchange = e => { const f = e.target.files[0]; if (f) { photo = photo || f; runAI(f); } };
+    const at = $("#aiText"); if (at) at.onclick = () => runAI(null);
     $("#itemF").onsubmit = async e => {
       e.preventDefault();
       const name = $("#f_name").value.trim();
       if (!name) { $("#fMsg").innerHTML = `<div class="err">${tx("needName")}</div>`; $("#f_name").focus(); return; }
       const btn = $("#fSave"); btn.disabled = true;
-      const details = { ...(p ? p._row.details : {}) };
+      const B = base();
+      const details = p ? (({ review, processing, ...d }) => d)(p._row.details) : ai ? (({ kind, type, status, notes, ...rest }) => rest)(ai) : {};
       const setText = (f, v) => {           // changing a field replaces its English/Arabic variants
-        if (p && v === (L(p, f) ?? "")) return;
+        if (B && v === (L(B, f) ?? "")) return;
         delete details[f + "_en"]; delete details[f + "_ar"];
         if (v) details[f] = v; else delete details[f];
       };
@@ -567,7 +611,9 @@ function openForm(p, pre) {
       setText("summary", $("#f_summary").value.trim());
       setText("name", name); delete details.name;
       details.notes = $("#f_notes").value.trim(); if (!details.notes) delete details.notes;
-      const row = { kind: fk, type: $("#f_type").value, status: $("#f_status").value, name: p && name === (L(p, "name") ?? "") ? p._row.name : name, details };
+      const keepName = B && name === (L(B, "name") ?? "");
+      const row = { kind: fk, type: $("#f_type").value, status: $("#f_status").value,
+        name: keepName ? (p ? p._row.name : (ai.name_en || ai.name_ar || name)) : name, details };
       try {
         if (photo) row.image_path = await uploadPhoto(photo);
         if (p) {
@@ -581,14 +627,31 @@ function openForm(p, pre) {
       } catch (err) { btn.disabled = false; $("#fMsg").innerHTML = `<div class="err">${esc(err.message || tx("err"))}</div>`; }
     };
   };
+  async function runAI(file) {
+    busy = true; aiErr = ""; draw();
+    try {
+      const image = file ? await new Promise(async (res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(await shrink(file, 1500)); }) : "";
+      const note = [pre && pre.name, pre && pre.notes].filter(Boolean).join("\n");
+      const resp = await fetch("/api/lookup", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+        body: JSON.stringify({ image, note, url: pre && pre.url || "", kind: fk }) });
+      const out = await resp.json().catch(() => ({}));
+      if (!resp.ok || !out.item) throw new Error(out.error || tx("err"));
+      ai = out.item; fk = ai.kind;
+      if (pre && pre.url) {                              // keep the link the user shared
+        const f = sharedFields(pre, fk); ["maps", "instagram", "website", "product_url"].forEach(k => { if (f[k] && !ai[k]) ai[k] = f[k]; });
+      }
+    } catch (e) { aiErr = e.message || tx("err"); }
+    busy = false; draw();
+  }
   draw();
+  if (pre && pre.image && aiEnabled) runAI(pre.image);
 }
 
 /* ───────────── Sharing from other apps (phone Share menu) ───────────── */
 const SHARE_KEY = "tgl-share";
 function captureShare() {               // called on load: ?title=&text=&url= from the Share menu
   const q = new URLSearchParams(location.search);
-  if (!["title", "text", "url"].some(k => q.get(k))) return;
+  if (!["title", "text", "url", "img"].some(k => q.get(k))) return;
   let title = (q.get("title") || "").trim(), text = (q.get("text") || "").trim(), url = (q.get("url") || "").trim();
   const found = (text.match(/https?:\/\/\S+/) || [])[0];
   if (!url && found) url = found;
@@ -605,7 +668,7 @@ function captureShare() {               // called on load: ?title=&text=&url= fr
     /goodreads\.com|jarir\.com\/.*book|kitabi|books\.google/.test(host + url) ? "book" :
     /amazon\.|noon\.com|shein\.|extra\.com|jarir\.com|namshi|ikea\.|aliexpress|temu\.|apple\.com\/.*shop|ounass|trendyol/.test(host + url) ? "buy" : "";
   const notes = [text && text !== name ? text : ""].filter(Boolean).join("\n");
-  try { sessionStorage.setItem(SHARE_KEY, JSON.stringify({ name, url, notes, isMaps, kind: kindGuess })); } catch (e) {}
+  try { sessionStorage.setItem(SHARE_KEY, JSON.stringify({ name, url, notes, isMaps, kind: kindGuess, img: q.get("img") === "1" })); } catch (e) {}
   history.replaceState(null, "", location.pathname + location.hash);
 }
 function takeShare() {
@@ -634,6 +697,7 @@ function openListPicker() {
     <div class="blk row">
       <button class="btn pri" id="newL">＋ ${tx("newList")}</button>
       ${cur && canEdit ? `<button class="btn" id="setL">⚙︎ ${tx("settings")}</button>` : ""}
+      <button class="btn" id="iph">📱 ${tx("iphone")}</button>
     </div>
     <div class="blk row" style="justify-content:space-between;align-items:center">
       <span class="note">${esc(me ? me.display_name : "")} · ${esc(session.user.email)}</span>
@@ -643,6 +707,7 @@ function openListPicker() {
   document.querySelectorAll(".litem").forEach(b => b.onclick = () => { closeSheet(); go(`#/l/${b.dataset.id}`); });
   $("#newL").onclick = openNewList;
   const s = $("#setL"); if (s) s.onclick = openSettings;
+  $("#iph").onclick = openIphone;
   $("#out").onclick = async () => { await sb.auth.signOut(); };
 }
 function openNewList() {
@@ -719,6 +784,39 @@ async function openSettings() {
   draw();
 }
 
+/* ───────────── iPhone sharing (Shortcut) ───────────── */
+async function openIphone() {
+  let row = null;
+  const load = async () => {
+    const { data } = await sb.from("share_keys").select("*").eq("user_id", session.user.id).maybeSingle();
+    row = data;
+    if (!row) { const r = await sb.from("share_keys").insert({ user_id: session.user.id }).select().single(); row = r.data; }
+  };
+  try { await load(); } catch (e) {}
+  const endpoint = origin() + "api/share";
+  const draw = () => {
+    sheet(`<h2>📱 ${tx("iphoneT")}</h2><div class="sub">${tx("iphoneB")}</div>
+      ${!shortcutEnabled ? `<div class="invitecard" style="margin-top:12px">${tx("off")}</div>` : ""}
+      ${row ? `<div class="blk"><div class="lbl">${tx("shareTo")}</div><select id="shL" class="search" style="margin-top:0">${myLists.map(l =>
+          `<option value="${l.id}" ${(row.list_id || myLists.find(x => x.kind === "private" && x.role === "owner")?.id) === l.id ? "selected" : ""}>${tx("kindIcon")[l.kind]} ${esc(l.name)}</option>`).join("")}</select></div>
+        <div class="blk"><div class="lbl">${tx("yourKey")}</div><div class="linkbox"><input readonly value="${esc(row.token)}" dir="ltr"><button class="btn" id="cpK">${tx("copy")}</button></div>
+          <div class="note" style="margin-top:4px">${tx("keyNote")}</div></div>
+        <div class="blk"><div class="lbl">${tx("address")}</div><div class="linkbox"><input readonly value="${esc(endpoint)}" dir="ltr"><button class="btn" id="cpU">${tx("copy")}</button></div></div>`
+      : `<div class="err">${tx("err")} — run the latest SQL update in Supabase.</div>`}
+      <div class="blk"><ol class="steps">${tx("steps").map(x => `<li>${x}</li>`).join("")}</ol></div>
+      <div class="blk row">${row ? `<button class="btn danger" id="rk">${tx("newKey")}</button>` : ""}<button class="btn" id="cls">${tx("close")}</button></div>`, tx("iphoneT"));
+    const cpK = $("#cpK"); if (cpK) cpK.onclick = () => copyText(row.token);
+    const cpU = $("#cpU"); if (cpU) cpU.onclick = () => copyText(endpoint);
+    const sel = $("#shL"); if (sel) sel.onchange = async () => {
+      const { error } = await sb.from("share_keys").update({ list_id: sel.value }).eq("user_id", session.user.id);
+      error ? toast(tx("err")) : toast(tx("saved")); };
+    const rk = $("#rk"); if (rk) { let armed = false; rk.onclick = async () => {
+      if (!armed) { armed = true; rk.textContent = tx("delSure"); return; }
+      await sb.from("share_keys").delete().eq("user_id", session.user.id); row = null; await load(); draw(); toast(tx("saved")); }; }
+  };
+  draw();
+}
+
 /* ───────────── One-time import from the old Claude version ───────────── */
 async function showImport() {
   await loadMyLists();
@@ -784,5 +882,6 @@ async function showImport() {
   // email-confirmation and recovery links put tokens in the hash; clean them up
   if (/access_token=|error_description=/.test(location.hash)) history.replaceState(null, "", location.pathname);
   captureShare();
+  fetch("/api/lookup", { cache: "no-store" }).then(r => r.json()).then(j => { aiEnabled = !!j.enabled; shortcutEnabled = !!j.shortcut; }).catch(() => {});
   route();
 })();

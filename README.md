@@ -17,7 +17,16 @@ Sign-in and data: Supabase. Hosting: Vercel. No Claude account needed to use it.
    - `APP_NAME` — `Wishlylist` (optional; that is already the default)
 4. Click **Deploy**.
 
-Never put the `service_role` key anywhere in this project.
+Never put the `service_role` / secret key in the code. It belongs only in Vercel's settings (server-side), for iPhone sharing.
+
+## Screenshot reading and iPhone sharing (optional, pay-per-use)
+1. Supabase → SQL Editor: run `supabase/update-2-screenshots.sql` (already included in `schema.sql` for new setups).
+2. Vercel → Settings → Environment Variables, add:
+   - `ANTHROPIC_API_KEY` — from platform.claude.com → API Keys (needs prepaid credit)
+   - `SUPABASE_SERVICE_ROLE_KEY` — Supabase → Project Settings → API Keys → secret key (only needed for iPhone sharing)
+   - optional: `LOOKUP_DAILY_LIMIT` (default 20 per person per day), `LOOKUP_ALLOWED_EMAILS`, `CLAUDE_MODEL` (default `claude-sonnet-5-5`)
+3. Vercel → Deployments → ⋯ → Redeploy.
+4. In the site: ☰ → 📱 iPhone sharing, and follow the steps to make the Shortcut.
 
 ## Importing the old Claude list
 Signed in, open `https://wishlylist.vercel.app/#/import`, choose `to-go-list-old-items.json`, pick a list and click **Import**. Running it twice doesn't create duplicates.
