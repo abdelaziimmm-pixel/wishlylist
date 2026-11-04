@@ -180,7 +180,7 @@ create policy "profiles update self" on public.profiles for update
 -- lists: members see their lists; anyone sees public lists; only the owner changes them
 drop policy if exists "lists read" on public.lists;
 create policy "lists read" on public.lists for select
-  using (kind = 'public' or public.is_member(id));
+  using (kind = 'public' or owner_id = auth.uid() or public.is_member(id));
 drop policy if exists "lists create" on public.lists;
 create policy "lists create" on public.lists for insert
   with check (owner_id = auth.uid());
