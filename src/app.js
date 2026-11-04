@@ -332,6 +332,8 @@ async function openList(id, k) {
   kind = k || kind;
   $("#screen").innerHTML = ""; $("#hdr").hidden = false; $("#fab").hidden = !canEdit;
   lastView = renderMain; renderMain();
+  const share = takeShare();
+  if (share && canEdit) openForm(null, share);
 }
 function subscribe() {
   if (channel) { sb.removeChannel(channel); channel = null; }
@@ -521,10 +523,10 @@ const FIELDS = {
   movie:   [["year","yearL"],["genre","genreL"],["director","directorL"],["watch","watchL"]],
   book:    [["author","authorL"],["year","yearL"],["pages","pagesL"]]
 };
-function openForm(p) {
+function openForm(p, pre) {
   closeSheet();
-  let fk = p ? kindOf(p) : kind, photo = null;
-  const val = f => p ? (L(p, f) ?? "") : "";
+  let fk = p ? kindOf(p) : (pre && pre.kind) || kind, photo = null;
+  const val = f => p ? (L(p, f) ?? "") : pre ? (sharedFields(pre, fk)[f] ?? "") : "";
   const draw = () => {
     const K = KINDS[fk];
     const fieldHtml = ([f, lbl, ty]) => {
@@ -542,7 +544,7 @@ function openForm(p) {
         </div>
         <div class="grid2">${FIELDS[fk].map(fieldHtml).join("")}</div>
         <div class="field"><label for="f_summary">${tx("summaryL")}</label><textarea id="f_summary">${esc(val("summary"))}</textarea></div>
-        <div class="field"><label for="f_notes">${tx("notes")}</label><textarea id="f_notes">${esc(p ? p.notes || "" : "")}</textarea></div>
+        <div class="field"><label for="f_notes">${tx("notes")}</label><textarea id="f_notes">${esc(p ? p.notes || "" : val("notes"))}</textarea></div>
         <div class="blk"><div class="lbl">${tx("photoL")}</div><label class="drop" for="f_photo">${tx("pickPhoto")}<input type="file" id="f_photo" accept="image/*"></label><div class="previews" id="prev">${photo ? `<img src="${URL.createObjectURL(photo)}" alt="">` : p && coverOf(p) ? `<img src="${esc(coverOf(p))}" alt="">` : ""}</div></div>
         <div id="fMsg"></div>
         <div class="blk row"><button class="btn pri" id="fSave">${tx("save")}</button><button type="button" class="btn" id="cls">${tx("cancel")}</button></div>
@@ -580,6 +582,45 @@ function openForm(p) {
     };
   };
   draw();
+}
+
+/* ───────────── Sharing from other apps (phone Share menu) ───────────── */
+const SHARE_KEY = "tgl-share";
+function captureShare() {               // called on load: ?title=&text=&url= from the Share menu
+  const q = new URLSearchParams(location.search);
+  if (!["title", "text", "url"].some(k => q.get(k))) return;
+  let title = (q.get("title") || "").trim(), text = (q.get("text") || "").trim(), url = (q.get("url") || "").trim();
+  const found = (text.match(/https?:\/\/\S+/) || [])[0];
+  if (!url && found) url = found;
+  if (found) text = text.replace(found, "").trim();
+  if (/^https?:\/\//.test(title)) { if (!url) url = title; title = ""; }
+  const host = (() => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return ""; } })();
+  const isMaps = /(^|\.)google\.[a-z.]+$/.test(host) && /\/maps/.test(url) || /maps\.app\.goo\.gl|goo\.gl\/maps|maps\.apple\.com/.test(url);
+  // name: shared title, else the first line of the shared text (minus app suffixes like " - Google Maps")
+  let name = (title || text.split(/\n/)[0] || "").replace(/\s*[-|·–]\s*(Google Maps|YouTube|Instagram|TikTok|Amazon\.sa|noon|SHEIN|IMDb|Goodreads)\s*$/i, "").trim();
+  if (name.length > 120) name = name.slice(0, 117) + "…";
+  const kindGuess =
+    isMaps || /instagram\.com|tiktok\.com|tripadvisor|booking\.com|airbnb/.test(host) ? "place" :
+    /imdb\.com|netflix\.com|shahid\.net|osn|primevideo|disneyplus|letterboxd|youtube\.com|youtu\.be/.test(host) ? "movie" :
+    /goodreads\.com|jarir\.com\/.*book|kitabi|books\.google/.test(host + url) ? "book" :
+    /amazon\.|noon\.com|shein\.|extra\.com|jarir\.com|namshi|ikea\.|aliexpress|temu\.|apple\.com\/.*shop|ounass|trendyol/.test(host + url) ? "buy" : "";
+  const notes = [text && text !== name ? text : ""].filter(Boolean).join("\n");
+  try { sessionStorage.setItem(SHARE_KEY, JSON.stringify({ name, url, notes, isMaps, kind: kindGuess })); } catch (e) {}
+  history.replaceState(null, "", location.pathname + location.hash);
+}
+function takeShare() {
+  try { const v = sessionStorage.getItem(SHARE_KEY); if (!v) return null; sessionStorage.removeItem(SHARE_KEY); return JSON.parse(v); } catch (e) { return null; }
+}
+function sharedFields(pre, k) {           // put the shared link in the field that fits the chosen tab
+  const f = { name: pre.name || "", notes: pre.notes || "" };
+  const u = pre.url || "";
+  if (u) {
+    if (k === "place") f[pre.isMaps ? "maps" : /instagram\.com/.test(u) ? "instagram" : "website"] = u;
+    else if (k === "buy") f.product_url = u;
+    else if (k === "service") f.website = u;
+    else f.notes = [f.notes, u].filter(Boolean).join("\n");
+  }
+  return f;
 }
 
 /* ───────────── Lists: picker, create, settings ───────────── */
@@ -742,5 +783,6 @@ async function showImport() {
   booted = true;
   // email-confirmation and recovery links put tokens in the hash; clean them up
   if (/access_token=|error_description=/.test(location.hash)) history.replaceState(null, "", location.pathname);
+  captureShare();
   route();
 })();

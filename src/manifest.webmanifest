@@ -1,0 +1,19 @@
+{
+  "name": "Wishlylist",
+  "short_name": "Wishlylist",
+  "description": "Places to go, things to buy, movies to watch — for you, your family and friends.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#EEF2F4",
+  "theme_color": "#E8553A",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": { "title": "title", "text": "text", "url": "url" }
+  }
+}
